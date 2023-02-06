@@ -1,91 +1,63 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+'use client';
 
-const inter = Inter({ subsets: ['latin'] })
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+type todo={name:string,isDone:boolean};
+
+let todos:todo[]=[];
+todos.push({name:"Todo 1",isDone:false});
+todos.push({name:"Todo 2",isDone:false});
+todos.push({name:"Todo 3",isDone:false});
+todos.push({name:"Todo 4",isDone:false});
+todos.push({name:"Todo 5",isDone:false});
+
 
 export default function Home() {
+  const [checked,setChecked] = useState(false);
+  const [text,setText]=useState("");
+  const router = useRouter();
+  const handleChecked = (x:todo)=>{
+   
+     const newTodos = todos.map(y=>{
+      if(y.name===x.name)
+      {
+        y.isDone= !y.isDone;
+        
+      }
+      return y;
+    });
+    todos = newTodos;
+    setChecked(!checked);
+  }
+
+  const handleAddTodo = (refresh:()=>void)=>{
+    todos.push({name:text,isDone:false});
+    refresh();
+    
+  }
+
+  const handleDeletTodo = (text:string,refresh:()=>void)=>
+  {
+    const newTodos = todos.filter(x=>{
+      return x.name!=text
+    });
+    todos = newTodos;
+    refresh();
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <>
+    <input type="text" value={text} onChange={(e)=>setText(e.target.value)} />
+    <button value="Add Todo" onClick={()=>handleAddTodo(router.refresh)}>Add Todo</button>
+      <ul>
+          {todos.map((x)=>(
+                <li key={x.name}>
+                  <input type="checkbox" checked={x.isDone} onChange={()=>handleChecked(x)}/>{x.name}
+                  <button onClick={(e)=>handleDeletTodo(x.name, router.refresh)}>Delete</button>
+                </li>
+          ))}
+      </ul>
+    </>
   )
 }
